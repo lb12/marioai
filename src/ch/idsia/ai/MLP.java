@@ -8,6 +8,7 @@ import java.util.Random;
  * Date: Apr 28, 2009
  * Time: 2:15:10 PM
  */
+
 public class MLP implements FA<double[], double[]>, Evolvable {
 
         private double[][] firstConnectionLayer;
@@ -47,11 +48,14 @@ public class MLP implements FA<double[], double[]>, Evolvable {
     }
 
     protected void initializeLayer(double[][] layer) {
+        System.out.print("Contenido de la capa {");
         for (int i = 0; i < layer.length; i++) {
             for (int j = 0; j < layer[i].length; j++) {
                 layer[i][j] = (random.nextGaussian() * deviation + mean);
+                System.out.print(layer[i][j]+";");
             }
         }
+        System.out.println("}");
     }
 
     public MLP getNewInstance() {
