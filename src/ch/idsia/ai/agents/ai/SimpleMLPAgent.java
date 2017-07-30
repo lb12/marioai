@@ -3,6 +3,7 @@ package ch.idsia.ai.agents.ai;
 import ch.idsia.ai.Evolvable;
 import ch.idsia.ai.MLP;
 import ch.idsia.ai.agents.Agent;
+import ch.idsia.ai.ga.GeneticAlgorithm;
 import ch.idsia.mario.environments.Environment;
 
 /**
@@ -72,5 +73,10 @@ public class  SimpleMLPAgent implements Agent, Evolvable {
         int realX = x + 11;
         int realY = y + 11;
         return (scene[realX][realY] != 0) ? 1 : 0;
+    }
+
+    public String toString(){
+        
+        return name + " " + getType().toString();
     }
 }
