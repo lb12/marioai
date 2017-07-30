@@ -18,6 +18,7 @@ public class MultiSeedProgressTask implements Task {
     private EvaluationOptions options;
     private int startingSeed = 0;
     private int numberOfSeeds = 3;
+    public EvaluationInfo result;
 
     public MultiSeedProgressTask(EvaluationOptions evaluationOptions) {
         setOptions(evaluationOptions);
@@ -32,7 +33,7 @@ public class MultiSeedProgressTask implements Task {
             options.setLevelRandSeed(startingSeed + i);
             Evaluator evaluator = new Evaluator(options);
             List<EvaluationInfo> results = evaluator.evaluate();     
-            EvaluationInfo result = results.get(0);
+            result = results.get(0);
             distanceTravelled += result.computeDistancePassed();
         }
         distanceTravelled = distanceTravelled / numberOfSeeds;

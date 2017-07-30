@@ -1,9 +1,11 @@
 package ch.idsia.ai.tasks;
 
 import ch.idsia.ai.agents.Agent;
+import ch.idsia.mario.engine.sprites.Mario;
 import ch.idsia.tools.EvaluationInfo;
 import ch.idsia.tools.EvaluationOptions;
 import ch.idsia.tools.Evaluator;
+import wox.serial.Easy;
 
 import java.util.List;
 
@@ -29,8 +31,11 @@ public class ProgressTask implements Task {
         Evaluator evaluator = new Evaluator(options);
         List<EvaluationInfo> results = evaluator.evaluate();
         for (EvaluationInfo result : results) {
-            //if (result.marioStatus == Mario.STATUS_WIN )
-            //    Easy.save(options.getAgent(), options.getAgent().getName() + ".xml");
+            if (result.marioStatus == Mario.STATUS_WIN ){                
+                System.out.println("Se ha pasado el nivel! Vamos a guardar este agente en disco!");
+                System.out.println(result.toString());
+                Easy.save(options.getAgent(), options.getAgent().getName() + ".xml");
+            }                
             distanceTravelled += result.computeDistancePassed();
         }
         distanceTravelled = distanceTravelled / results.size();

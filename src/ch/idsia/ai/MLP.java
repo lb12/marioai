@@ -100,22 +100,32 @@ public class MLP implements FA<double[], double[]>, Evolvable {
 
         int firstIndex = new Random().nextInt(firstConnectionLayer.length);
         int secondIndex = new Random().nextInt(secondConnectionLayer.length);
+        
+        firstConnectionLayer = fillLayer0(firstConnectionLayer, this.firstConnectionLayer, firstIndex);
+        firstConnectionLayer = fillLayer1(firstConnectionLayer, this.firstConnectionLayer, parent2.getMLP().getFirstConnectionLayer(), (firstIndex + 1), inputs.length);
 
-        firstConnectionLayer = fillLayer(firstConnectionLayer, this.firstConnectionLayer, 0, firstIndex);
-        firstConnectionLayer = fillLayer(firstConnectionLayer, parent2.getMLP().getFirstConnectionLayer(), (firstIndex + 1), this.firstConnectionLayer.length);
-
-        secondConnectionLayer = fillLayer(secondConnectionLayer, this.secondConnectionLayer, 0, secondIndex);
-        secondConnectionLayer = fillLayer(secondConnectionLayer, parent2.getMLP().getSecondConnectionLayer(), (secondIndex + 1), this.secondConnectionLayer.length);
+        secondConnectionLayer = fillLayer0(secondConnectionLayer, this.secondConnectionLayer, secondIndex);
+        secondConnectionLayer = fillLayer1(secondConnectionLayer, this.secondConnectionLayer, parent2.getMLP().getSecondConnectionLayer(), (secondIndex + 1), hiddenNeurons.length);
 
         MLP son = new MLP(firstConnectionLayer, secondConnectionLayer, hiddenNeurons.length, outputs.length);     
 
         return son;
     }
 
-    public double[][] fillLayer(double[][] layerFilling, double[][] auxLayer, int min0, int max0){
-        for(int i = min0; i < max0; i++){
+    public double[][] fillLayer0(double[][] layerFilling, double[][] auxLayer,  int max){
+        for(int i = 0; i <= max; i++){
             for(int j = 0; j < auxLayer[i].length; j++){
                 layerFilling[i][j] = auxLayer[i][j];
+            }
+        }
+
+        return layerFilling;
+    }
+
+    public double[][] fillLayer1(double[][] layerFilling, double[][] parent1Layer,double[][] parent2Layer, int min0, int max0){
+        for(int i = min0; i < max0; i++){
+            for(int j = 0; j < parent2Layer[i].length; j++){
+                layerFilling[i][j] = 0.5f * (parent1Layer[i][j] + parent2Layer[i][j]); //zi = alpha * xi + (1-alpha) * yi  -- Usually, alpha = 0.5f -- zi = 0.5*xi+0.5*yi = 0.5(xi+yi)
             }
         }
 

@@ -1,6 +1,8 @@
 package ch.idsia.ai.ga;
 
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.idsia.ai.EA;
 import ch.idsia.ai.Evolvable;
@@ -11,168 +13,201 @@ import ch.idsia.ai.tasks.Task;
 import ch.idsia.tools.CmdLineOptions;
 import ch.idsia.tools.EvaluationOptions;
 
-public class GeneticAlgorithm implements EA{
+public class GeneticAlgorithm implements EA {
     public static GeneticAlgorithm Instance;
-    private Evolvable[] population;
+    private List<Evolvable> population;
+    private List<Evolvable> nextPopulation;
     private int populationSize;
     private Task task;
 
     public final float crossover_prob;
-    public final float mutation_prob;  
-    private int tournamentSize;  
+    public final float mutation_prob;
+    private int tournamentSize;
 
-    public GeneticAlgorithm(Task task, int populationSize, Evolvable initial){
-        Instance = Instance != null? Instance : this;
+    public GeneticAlgorithm(Task task, int populationSize, Evolvable initial) {
+        Instance = Instance != null ? Instance : this;
         this.populationSize = populationSize;
         this.task = task;
-        population = new Evolvable[populationSize];
+        population = new ArrayList<Evolvable>();
+        nextPopulation = new ArrayList<Evolvable>();
         crossover_prob = 0.7f;
         mutation_prob = 0.2f;
         tournamentSize = 10;
         populationInitialization(initial);
     }
 
-    public void populationInitialization(Evolvable initial){
-        for(int i = 0; i < populationSize; i++){
-            population[i] = initial.getNewInstance(); //New neuronal net with same layers, but different values content.
+    public void populationInitialization(Evolvable initial) {
+        for (int i = 0; i < populationSize; i++) {
+            population.add(initial.getNewInstance()); //New neuronal net with same layers, but different values content.            
         }
     }
 
     @Override
-    public void nextGeneration(){
-    
-        Evolvable[] tournamentSelection = tournamentSelection();
+    public void nextGeneration() {
+        //soutln("Hago la seleccion por torneo");
+        List<Evolvable> tournamentSelection = tournamentSelection();
         Evolvable[] parents = parentsSelection(tournamentSelection);
 
         float mutation_prob = new Random().nextFloat();
         float crossover_prob = new Random().nextFloat();
 
         Evolvable son = null;
-
-        soutln("\nCompruebo la posibilidad de crossover entre los padres. La probabilidad de crossover obtenida es " + crossover_prob);
-        if(crossover_prob <= this.crossover_prob){
-            son = parents[0].crossover((SimpleMLPAgent)parents[1]);
-            soutln(getEvolvableInfo(son));
-            soutln("El hijo ha sido CREADO!!!!!!!");
+        //soutln("Intento el crossover y la mutacion");
+        if (crossover_prob <= this.crossover_prob) {
+            son = parents[0].crossover((SimpleMLPAgent) parents[1]);
         }
 
-        soutln("Compruebo la posibilidad de mutacion de los padres. La probabilidad de mutación obtenida es " + mutation_prob);
-        if(mutation_prob <= this.mutation_prob){
-            soutln("Antes de mutar!!!");
-            soutln(getEvolvableInfo(parents[0]));
+        if (mutation_prob <= this.mutation_prob) {
             parents[0].mutate();
-            soutln("Despues de mutar!!!");
-            soutln(getEvolvableInfo(parents[0]));
-            parents[1].mutate();
+            if (son != null)
+                son.mutate();
         }
-        
 
-
-
+        //soutln("Anyado un individuo a la nueva poblacion");
+        if (son != null) {
+            nextPopulation.add(son);
+        } else {
+            nextPopulation.add(parents[0]);
+        }
+        //soutln("Tamanyo nueva generacion " + nextPopulation.size());
     }
 
-    	@Override
-	public Evolvable[] getBests() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Evolvable[] getBests() {
+        return new Evolvable[] { population.get(0) };
+    }
 
-	@Override
-	public double[] getBestFitnesses() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public double[] getBestFitnesses() {
+        return new double[] { task.evaluate((Agent) population.get(0))[0] };
+    }
 
-    public Evolvable[] tournamentSelection(){
-        Evolvable[] selectedEvolvables = new Evolvable[tournamentSize]; //5 posibles candidatos
-        Double[] selectedFitness = new Double[tournamentSize]; //5 fitness
+    public List<Evolvable> getNextPopulation(){
+        return nextPopulation;
+    }
+
+    public void updatePopulation() {
+        population.clear();
+        population.addAll(nextPopulation);
+        nextPopulation.clear();
+        sortPopulationByFitness();
+    }
+
+    public List<Evolvable> tournamentSelection() {
+        List<Evolvable> selectedEvolvables = new ArrayList<>();
+        Double[] selectedFitness = new Double[tournamentSize];
 
         int index = 0, counter = 0;
-        boolean contained = false;
-        while(counter < tournamentSize){
-            do{
+        while (counter < tournamentSize) {
+            do {
                 index = new Random().nextInt(populationSize);
 
-                for(int i = 0; i < selectedEvolvables.length; i++){
-                    if(selectedEvolvables[i] != null && selectedEvolvables[i].equals(population[index])){
-                        contained = true;
-                        break;
-                    }
-                }             
-            }while(contained);
-            selectedEvolvables[counter] = population[index];               
-            selectedFitness[counter] = task.evaluate((Agent) population[index])[0]; //Individual fitness evaluated.
-            counter++; 
+            } while (selectedEvolvables.contains(population.get(index)));
+
+            selectedEvolvables.add(population.get(index));
+            selectedFitness[counter] = task.evaluate((Agent) population.get(index))[0]; //Individual fitness evaluated.
+            counter++;
         }
-
         selectedEvolvables = sortPopulationByFitness(selectedEvolvables, selectedFitness);
-
         return selectedEvolvables;
     }
 
-    public Evolvable[] parentsSelection(Evolvable[] selectedEvolvables){
-        Evolvable[] parents = new Evolvable[2];        
+    public Evolvable[] parentsSelection(List<Evolvable> selectedEvolvables) {
+        Evolvable[] parents = new Evolvable[2];
 
-        parents[0] = selectedEvolvables[0];
-        parents[1] = selectedEvolvables[1];
+        parents[0] = selectedEvolvables.get(0);
+        parents[1] = selectedEvolvables.get(1);
 
         return parents;
     }
 
-    public Evolvable[] sortPopulationByFitness(Evolvable[] tournamentSelection, Double[] fitnessSelection){       
-        for(int i = 0; i < tournamentSelection.length; i++){
-            for(int j = (i+1); j < tournamentSelection.length; j++){
-                if(fitnessSelection[i] < fitnessSelection[j]){
-                    Evolvable auxEv = tournamentSelection[i];
-                    double auxFit = fitnessSelection[i];
+    public void sortPopulationByFitness() {
 
-                    tournamentSelection[i] = tournamentSelection[j];
+        Double[] fitnessSelection = new Double[populationSize];
+
+        for (int i = 0; i < populationSize; i++) {
+            fitnessSelection[i] = task.evaluate((Agent) population.get(i))[0];
+        }
+
+        sortPopulationByFitness(population, fitnessSelection);
+    }
+
+    public List<Evolvable> sortPopulationByFitness(List<Evolvable> tournamentSelection, Double[] fitnessSelection) {
+        for (int i = 0; i < tournamentSelection.size(); i++) {
+            for (int j = (i + 1); j < tournamentSelection.size(); j++) {
+                if (fitnessSelection[i] < fitnessSelection[j]) {
+                    Evolvable auxEv = tournamentSelection.get(i);
+                    double auxFit = fitnessSelection[i];
+                    tournamentSelection.set(i, tournamentSelection.get(j));
                     fitnessSelection[i] = fitnessSelection[j];
-                    tournamentSelection[j] = auxEv;
+                    tournamentSelection.set(j, auxEv);
                     fitnessSelection[j] = auxFit;
                 }
             }
-        }     
-        printTournamentInfo(tournamentSelection);
+        }
+        //printTournamentInfo(tournamentSelection);
 
         return tournamentSelection;
     }
 
     /*********************************************************************** INFO METHODS *****************************************************************************/
-    private void printTournamentInfo(Evolvable[] tournamentSelection){ 
-        soutln("Tournament selection: "); 
-        for(int i = 0; i < tournamentSelection.length; i++){ 
-            soutp((i+1) + ". " + getEvolvableInfo(tournamentSelection[i])+"\n"); 
-        } 
-    } 
-    public String getEvolvableInfo(Evolvable e){ 
-         return e.toString() + " " + task.evaluate((Agent) e)[0] + " fitness."; 
-    } 
-    
+    private void printTournamentInfo(Evolvable[] tournamentSelection) {
+        soutln("Tournament selection: ");
+        for (int i = 0; i < tournamentSelection.length; i++) {
+            soutp((i + 1) + ". " + getEvolvableInfo(tournamentSelection[i]) + "\n");
+        }
+    }
+
+    public String getEvolvableInfo(Evolvable e) {
+        return e.toString() + " " + task.evaluate((Agent) e)[0] + " fitness.";
+    }
+
     /******************************************************************* TEST GENETIC ALGORITHM ************************************************************************/
-    public static void main(String[] args){
+    public static void main(String[] args) {
         EvaluationOptions options = new CmdLineOptions(args);
         options.setNumberOfTrials(1);
         options.setPauseWorld(true);
         options.setLevelDifficulty(0);
-        
+
         Evolvable initial = new SimpleMLPAgent();
-        
-        options.setAgent((Agent)initial);
+
+        options.setAgent((Agent) initial);
         options.setMaxFPS(true);
         options.setVisualization(false);
 
         Task task = new ProgressTask(options);
 
         GeneticAlgorithm ga = new GeneticAlgorithm(task, 100, initial);
-        ga.nextGeneration();
+        int generations = 5;
+
+        for (int i = 1; i <= generations; i++) {
+            ga.soutln("- GENERACION " + i + "\n");
+            ga.soutln("Antes de crear la siguiente generacion. Muestro la poblacion.");
+            ga.sortPopulationByFitness(); //Sort by fitness
+
+            for (int k = 0; k < ga.populationSize; k++) { //Show individuals on console.
+                ga.soutln(ga.getEvolvableInfo(ga.population.get(k)));
+            }
+
+            ga.soutln("\nVoy a crear la siguiente generacion.");
+            while (ga.nextPopulation.size() < ga.populationSize) { //Generate next population
+                ga.nextGeneration();
+            }
+            ga.updatePopulation();
+        }
+
+        ga.soutln("Generación final...");
+        ga.sortPopulationByFitness();
+        for (int k = 0; k < ga.populationSize; k++) { //Show individuals on console.
+            ga.soutln(ga.getEvolvableInfo(ga.population.get(k)));
+        }
     }
 
-    public void soutln(String c){
+    public void soutln(String c) {
         System.out.println(c);
     }
 
-    public void soutp(String c){
+    public void soutp(String c) {
         System.out.print(c);
     }
 }
