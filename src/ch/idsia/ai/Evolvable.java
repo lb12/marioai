@@ -1,5 +1,7 @@
 package ch.idsia.ai;
 
+import ch.idsia.ai.agents.Agent;
+import ch.idsia.ai.agents.ai.SimpleMLPAgent;
 
 /**
  * Interface to a generic <code>Evolvable</code>, one of the objects needed by an
@@ -37,6 +39,13 @@ public interface Evolvable {
      * Applies the predefined mutation to the <code>Evolvable</code>.
      */
     public void mutate();
+
+    /**
+     * Applies the predefined crossover to the <code>Evolvable</code> parent 2.
+     * 
+     * @return son of the crossover between this.parent and parent2.
+     */
+    public Evolvable crossover(SimpleMLPAgent parent2);
 
     /**
      * Produces a suitable <code>String</code> representation of the <code>Evolvable</code>.

@@ -2,6 +2,8 @@ package ch.idsia.ai;
 
 import java.util.Random;
 
+import ch.idsia.ai.agents.ai.SimpleMLPAgent;
+
 /**
  * Created by IntelliJ IDEA.
  * User: julian
@@ -133,5 +135,11 @@ public class SRN implements FA<double[], double[]>, Evolvable {
     public void setMutationMagnitude(double mutationMagnitude) {
         this.mutationMagnitude = mutationMagnitude;
     }
+
+	@Override
+	public Evolvable crossover(SimpleMLPAgent parent2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

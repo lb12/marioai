@@ -43,6 +43,12 @@ public class  SimpleMLPAgent implements Agent, Evolvable {
         mlp.mutate ();
     }
 
+    @Override
+    public Evolvable crossover(SimpleMLPAgent parent2){        
+    	MLP mlp = this.mlp.crossover(parent2);
+        return new SimpleMLPAgent(mlp);
+    }
+
     public boolean[] getAction(Environment observation) {
         byte[][] scene = observation.getLevelSceneObservation(/*1*/);
         double[] inputs = new double[]{probe(-1, -1, scene), probe(0, -1, scene), probe(1, -1, scene),
@@ -59,6 +65,10 @@ public class  SimpleMLPAgent implements Agent, Evolvable {
 
     public AGENT_TYPE getType() {
         return AGENT_TYPE.AI;
+    }
+
+    public MLP getMLP(){
+        return mlp;
     }
 
     public String getName() {
@@ -79,4 +89,5 @@ public class  SimpleMLPAgent implements Agent, Evolvable {
         
         return name + " " + getType().toString();
     }
+
 }

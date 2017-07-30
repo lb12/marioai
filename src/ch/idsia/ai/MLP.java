@@ -2,6 +2,8 @@ package ch.idsia.ai;
 
 import java.util.Random;
 
+import ch.idsia.ai.agents.ai.SimpleMLPAgent;
+
 /**
  * Created by IntelliJ IDEA.
  * User: julian
@@ -90,6 +92,36 @@ public class MLP implements FA<double[], double[]>, Evolvable {
             mutate(anArray);
         }
     }
+    
+    @Override
+    public MLP crossover(SimpleMLPAgent parent2){
+        double[][] firstConnectionLayer = new double[inputs.length][hiddenNeurons.length];
+        double[][] secondConnectionLayer = new double[hiddenNeurons.length][outputs.length];
+
+        int firstIndex = new Random().nextInt(firstConnectionLayer.length);
+        int secondIndex = new Random().nextInt(secondConnectionLayer.length);
+
+        firstConnectionLayer = fillLayer(firstConnectionLayer, this.firstConnectionLayer, 0, firstIndex);
+        firstConnectionLayer = fillLayer(firstConnectionLayer, parent2.getMLP().getFirstConnectionLayer(), (firstIndex + 1), this.firstConnectionLayer.length);
+
+        secondConnectionLayer = fillLayer(secondConnectionLayer, this.secondConnectionLayer, 0, secondIndex);
+        secondConnectionLayer = fillLayer(secondConnectionLayer, parent2.getMLP().getSecondConnectionLayer(), (secondIndex + 1), this.secondConnectionLayer.length);
+
+        MLP son = new MLP(firstConnectionLayer, secondConnectionLayer, hiddenNeurons.length, outputs.length);     
+
+        return son;
+    }
+
+    public double[][] fillLayer(double[][] layerFilling, double[][] auxLayer, int min0, int max0){
+        for(int i = min0; i < max0; i++){
+            for(int j = 0; j < auxLayer[i].length; j++){
+                layerFilling[i][j] = auxLayer[i][j];
+            }
+        }
+
+        return layerFilling;
+    }
+
 
     public void psoRecombine(MLP last, MLP pBest, MLP gBest) {
         // Those numbers are supposed to be constants. Ask Maurice Clerc.
@@ -383,6 +415,14 @@ public class MLP implements FA<double[], double[]>, Evolvable {
 
     public void setArray(double[] array) {
         setWeightsArray(array);
+    }
+
+    public double[][] getFirstConnectionLayer(){
+        return firstConnectionLayer;
+    }
+
+    public double[][] getSecondConnectionLayer(){
+        return secondConnectionLayer;
     }
 
 }
