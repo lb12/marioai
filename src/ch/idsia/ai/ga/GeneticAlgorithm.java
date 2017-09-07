@@ -14,8 +14,8 @@ import ch.idsia.tools.CmdLineOptions;
 import ch.idsia.tools.EvaluationOptions;
 
 public class GeneticAlgorithm implements EA {
-    public static GeneticAlgorithm Instance;
     private List<Evolvable> population;
+    private Double[] populationFitness;
     private List<Evolvable> nextPopulation;
     private int populationSize;
     private Task task;
@@ -25,15 +25,26 @@ public class GeneticAlgorithm implements EA {
     private int tournamentSize;
 
     public GeneticAlgorithm(Task task, int populationSize, Evolvable initial) {
-        Instance = Instance != null ? Instance : this;
         this.populationSize = populationSize;
         this.task = task;
         population = new ArrayList<Evolvable>();
+        populationFitness = new Double[populationSize];
         nextPopulation = new ArrayList<Evolvable>();
         crossover_prob = 0.7f;
         mutation_prob = 0.2f;
         tournamentSize = 10;
         populationInitialization(initial);
+    }
+
+    public GeneticAlgorithm (Task task, int populationSize, List<Evolvable> populationLoaded){
+        this.populationSize = populationSize;
+        this.task = task;
+        population = populationLoaded;
+        populationFitness = new Double[populationSize];
+        nextPopulation = new ArrayList<Evolvable>();
+        crossover_prob = 0.7f;
+        mutation_prob = 0.2f;
+        tournamentSize = 10;
     }
 
     public void populationInitialization(Evolvable initial) {
@@ -46,7 +57,7 @@ public class GeneticAlgorithm implements EA {
     public void nextGeneration() {
         //soutln("Hago la seleccion por torneo");
         List<Evolvable> tournamentSelection = tournamentSelection();
-        Evolvable[] parents = parentsSelection(tournamentSelection);
+        Evolvable[] parents = parentsSelection(tournamentSelection); //parent[0] fitness >= parent[1] fitness
 
         float mutation_prob = new Random().nextFloat();
         float crossover_prob = new Random().nextFloat();
@@ -71,7 +82,7 @@ public class GeneticAlgorithm implements EA {
         }
         //soutln("Tamanyo nueva generacion " + nextPopulation.size());
     }
-
+    
     @Override
     public Evolvable[] getBests() {
         return new Evolvable[] { population.get(0) };
@@ -82,7 +93,7 @@ public class GeneticAlgorithm implements EA {
         return new double[] { task.evaluate((Agent) population.get(0))[0] };
     }
 
-    public List<Evolvable> getNextPopulation(){
+    public List<Evolvable> getNextPopulation() {
         return nextPopulation;
     }
 
@@ -121,15 +132,15 @@ public class GeneticAlgorithm implements EA {
         return parents;
     }
 
-    public void sortPopulationByFitness() {
-
-        Double[] fitnessSelection = new Double[populationSize];
-
+    public void updateFitnessPopulation(){
         for (int i = 0; i < populationSize; i++) {
-            fitnessSelection[i] = task.evaluate((Agent) population.get(i))[0];
+            populationFitness[i] = task.evaluate((Agent) population.get(i))[0];
         }
+    }
 
-        sortPopulationByFitness(population, fitnessSelection);
+    public void sortPopulationByFitness() {
+        updateFitnessPopulation();
+        sortPopulationByFitness(population, populationFitness);
     }
 
     public List<Evolvable> sortPopulationByFitness(List<Evolvable> tournamentSelection, Double[] fitnessSelection) {
@@ -148,6 +159,20 @@ public class GeneticAlgorithm implements EA {
         //printTournamentInfo(tournamentSelection);
 
         return tournamentSelection;
+    }
+
+    public double getAveragePopulationFitness(){
+        double averagePopulationFitness = 0;
+
+        for(int i = 0; i < populationFitness.length; i++){
+            averagePopulationFitness += populationFitness[i];
+        }
+
+        return (averagePopulationFitness / populationSize);
+    }
+
+    public List<Evolvable> getCurrentPopulation(){
+        return population;
     }
 
     /*********************************************************************** INFO METHODS *****************************************************************************/

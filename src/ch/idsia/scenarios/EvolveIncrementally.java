@@ -28,7 +28,7 @@ public class EvolveIncrementally {
     public static void main(String[] args) {
         EvaluationOptions options = new CmdLineOptions(new String[0]);
         options.setNumberOfTrials(1);
-        options.setPauseWorld(true);
+        options.setPauseWorld(false);
         Evolvable initial = new SimpleMLPAgent();
         if (args.length > 0) {
             initial = (Evolvable) AgentsPool.load (args[0]);
@@ -41,7 +41,7 @@ public class EvolveIncrementally {
             System.out.println("New EvolveIncrementally phase with difficulty = " + difficulty + " started.");
             options.setLevelDifficulty(difficulty);
             options.setMaxFPS(true);
-            options.setVisualization(false);
+            options.setVisualization(false); 
             Task task = new ProgressTask(options);
            // MultiSeedProgressTask task = new MultiSeedProgressTask(options);            
            // task.setNumberOfSeeds(3);
@@ -62,21 +62,21 @@ public class EvolveIncrementally {
                 
                 //double bestResult = es.getBestFitnesses()[0]; //Esto lo he comentado para guardar las lineas de la ES
                 double bestResult = ga.getBestFitnesses()[0];
+                
                 System.out.println("Generation " + gen + " best " + bestResult);
-                //options.setVisualization(gen % 5 == 0 || bestResult > 4000); 
-                options.setVisualization(true);
-                options.setMaxFPS(true);
+                //options.setVisualization(gen % 5 == 0 || bestResult > 4000);                 
+                //options.setMaxFPS(false);
+                //options.setVisualization(true);
                 //Agent a = (Agent) es.getBests()[0]; //Esto lo he comentado para guardar las lineas de la ES
                 Agent a = (Agent) ga.getBests()[0];
                 a.setName(((Agent)initial).getName() + gen);
-//                AgentsPool.addAgent(a); //Esto ya estaba comentado
-//                AgentsPool.setCurrentAgent(a); //Esto ya estaba comentado
+                // AgentsPool.addAgent(a); //Esto ya estaba comentado
+                // AgentsPool.setCurrentAgent(a); //Esto ya estaba comentado
                 double result = task.evaluate(a)[0];
-
+                System.out.println("Result from best Agent = " + result);
                 //System.out.println(task.result.toString()); //Ya no me hace falta (solo en el multiseedprogresstask)
-
-                options.setVisualization(false);
-                options.setMaxFPS(true);
+                options.setMaxFPS(false); 
+                options.setVisualization(true);   //false             
                 //Easy.save (es.getBests()[0], "evolved.xml"); //Esto lo he comentado para guardar las lineas de la ES
                 Easy.save (ga.getBests()[0], "evolved.xml");
                 if (result > 4000) {

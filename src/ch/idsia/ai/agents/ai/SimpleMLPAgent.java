@@ -3,7 +3,6 @@ package ch.idsia.ai.agents.ai;
 import ch.idsia.ai.Evolvable;
 import ch.idsia.ai.MLP;
 import ch.idsia.ai.agents.Agent;
-import ch.idsia.ai.ga.GeneticAlgorithm;
 import ch.idsia.mario.environments.Environment;
 
 /**

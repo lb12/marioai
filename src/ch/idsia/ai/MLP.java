@@ -13,7 +13,7 @@ import ch.idsia.ai.agents.ai.SimpleMLPAgent;
 
 public class MLP implements FA<double[], double[]>, Evolvable {
 
-        private double[][] firstConnectionLayer;
+    private double[][] firstConnectionLayer;
     private double[][] secondConnectionLayer;
     private double[] hiddenNeurons;
     private double[] outputs;
