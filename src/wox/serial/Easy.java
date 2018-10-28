@@ -26,7 +26,6 @@ public class Easy {
             FileWriter file = new FileWriter(filename);
             out.output(el, file);
             file.close();
-            System.out.println("Saved object to " + filename);
         } catch (Exception e) {
             e.printStackTrace();
         }

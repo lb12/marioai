@@ -16,8 +16,9 @@ public class PlaySingle{
         EvaluationOptions options = new CmdLineOptions(new String[0]);
         options.setPauseWorld(false);
         int difficulty = 0;
-
-        Evolvable agentPlayed = (Evolvable) Easy.load("Population/" + difficulty + "/SimpleMLPAgent_0.xml");
+        String path = "Population/" + difficulty + "/";
+        String path2 = "Agentes_Antiguos_Distancia/";
+        Evolvable agentPlayed = (Evolvable) Easy.load(path2 + "SimpleMLPAgent_0.xml");
 
         options.setLevelDifficulty(difficulty);
         options.setMaxFPS(false);

@@ -85,5 +85,22 @@ public class ES implements EA {
     public double[] getBestFitnesses() {
         return new double[]{fitness[0]};  //To change body of implemented methods use File | Settings | File Templates.
     }
+    
+    public double[] getFitness(){
+    	return fitness;
+    }
+    
+    public double getAveragePopulationFitness(){
+    	double fitnessAvg = 0;
+    	for(int i = 0; i < fitness.length; i++){
+    		fitnessAvg += fitness[i];
+    	}
+    	
+    	return (fitnessAvg/fitness.length);
+    }
+    
+    public Evolvable[] getCurrentPopulation(){
+    	return population;
+    }
 
 }

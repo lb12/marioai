@@ -31,14 +31,12 @@ public class ProgressTask implements Task {
         Evaluator evaluator = new Evaluator(options);
         List<EvaluationInfo> results = evaluator.evaluate();
         for (EvaluationInfo result : results) {
-            if (result.marioStatus == Mario.STATUS_WIN ){                
+            if (result.marioStatus == Mario.STATUS_WIN ){  
                 System.out.println("Se ha pasado el nivel! Vamos a guardar este agente en disco!");
                 System.out.println(result.toString());
-                this.options.setMaxFPS(true);
-                this.options.setVisualization(true);
                 Easy.save(options.getAgent(), options.getAgent().getName() + ".xml");
-            }                
-            distanceTravelled += result.computeDistancePassed();
+            }                           
+              distanceTravelled += result.computeDistancePassed();
         }
         distanceTravelled = distanceTravelled / results.size();
         return new double[]{distanceTravelled};
@@ -51,5 +49,4 @@ public class ProgressTask implements Task {
     public EvaluationOptions getOptions() {
         return options;
     }
-
 }

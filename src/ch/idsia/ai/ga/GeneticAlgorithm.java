@@ -20,8 +20,8 @@ public class GeneticAlgorithm implements EA {
     private int populationSize;
     private Task task;
 
-    public final float crossover_prob;
-    public final float mutation_prob;
+    private float crossover_prob;
+    private float mutation_prob;
     private int tournamentSize;
 
     public GeneticAlgorithm(Task task, int populationSize, Evolvable initial) {
@@ -30,8 +30,8 @@ public class GeneticAlgorithm implements EA {
         population = new ArrayList<Evolvable>();
         populationFitness = new Double[populationSize];
         nextPopulation = new ArrayList<Evolvable>();
-        crossover_prob = 0.7f;
-        mutation_prob = 0.2f;
+        crossover_prob = 0.75f; 
+        mutation_prob = 0.25f; //0.2
         tournamentSize = 10;
         populationInitialization(initial);
     }
@@ -173,6 +173,32 @@ public class GeneticAlgorithm implements EA {
 
     public List<Evolvable> getCurrentPopulation(){
         return population;
+    }
+
+    
+    public Double[] getPopulationFitnessArray(){
+        for(int i = 0; i < populationFitness.length; i++){
+            for(int j = (i+1); j < populationFitness.length; j++){
+                if(populationFitness[i] < populationFitness[j]){
+                    Double lowerFitness = populationFitness[i];
+                    populationFitness[i] = populationFitness[j];
+                    populationFitness[j] = lowerFitness;
+                }
+            }
+        }
+        return populationFitness;
+    }
+
+    public void incrementMutationProb(float incrementValue){
+        mutation_prob += incrementValue;
+    }
+
+    public void setMutationProb(float mutationProb){
+        mutation_prob = mutationProb;
+    }
+
+    public double getMutationProb(){
+        return mutation_prob;
     }
 
     /*********************************************************************** INFO METHODS *****************************************************************************/
