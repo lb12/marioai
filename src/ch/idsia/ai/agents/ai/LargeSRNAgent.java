@@ -88,4 +88,10 @@ public class LargeSRNAgent extends BasicAIAgent implements Agent, Evolvable {
         int realY = y + 11;
         return (scene[realX][realY] != 0) ? 1 : 0;
     }
+
+	@Override
+	public Evolvable crossover(SimpleMLPAgent parent2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

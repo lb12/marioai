@@ -7,6 +7,7 @@ import org.jdom.output.XMLOutputter;
 
 import java.io.FileWriter;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.io.FileInputStream;
 
 /**
@@ -25,7 +26,6 @@ public class Easy {
             FileWriter file = new FileWriter(filename);
             out.output(el, file);
             file.close();
-            System.out.println("Saved object to " + filename);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -34,7 +34,7 @@ public class Easy {
     public static Object load(String filename) {
         try {
             SAXBuilder builder = new SAXBuilder();
-            InputStream is = new FileInputStream(filename);
+            InputStream is = new FileInputStream(filename);        
             Document doc = builder.build(is);
             Element el = doc.getRootElement();
             ObjectReader reader = new SimpleReader();

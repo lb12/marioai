@@ -88,5 +88,11 @@ public class LargeMLPAgent extends BasicAIAgent implements Agent, Evolvable {
         return (scene[realX][realY] != 0) ? 1 : 0;
     }
 
+	@Override
+	public Evolvable crossover(SimpleMLPAgent parent2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }

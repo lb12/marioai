@@ -11,12 +11,12 @@ import ch.idsia.mario.environments.Environment;
  * Date: Apr 28, 2009
  * Time: 2:09:42 PM
  */
-public class  SimpleMLPAgent implements Agent, Evolvable {
+public class SimpleMLPAgent implements Agent, Evolvable {
 
     private MLP mlp;
     private String name = "SimpleMLPAgent";
     final int numberOfOutputs = 6;
-    final int numberOfInputs = 10;
+    final int numberOfInputs = 21; //10 //21
 
     public SimpleMLPAgent () {
         mlp = new MLP (numberOfInputs, 10, numberOfOutputs);
@@ -42,11 +42,37 @@ public class  SimpleMLPAgent implements Agent, Evolvable {
         mlp.mutate ();
     }
 
-    public boolean[] getAction(Environment observation) {
-        byte[][] scene = observation.getLevelSceneObservation(/*1*/);
+    @Override
+    public Evolvable crossover(SimpleMLPAgent parent2){        
+    	MLP mlp = this.mlp.crossover(parent2);
+        return new SimpleMLPAgent(mlp);
+    }
+
+    /*GET ACTION QUE ESTABA CON SIMPLEMLPAGENT --> TIENE 10 INPUTS*/
+    /*public boolean[] getAction(Environment observation) {
+        byte[][] scene = observation.getLevelSceneObservation(); //1
         double[] inputs = new double[]{probe(-1, -1, scene), probe(0, -1, scene), probe(1, -1, scene),
                               probe(-1, 0, scene), probe(0, 0, scene), probe(1, 0, scene),
                                 probe(-1, 1, scene), probe(0, 1, scene), probe(1, 1, scene),
+                                1};
+        double[] outputs = mlp.propagate (inputs);
+        boolean[] action = new boolean[numberOfOutputs];
+        for (int i = 0; i < action.length; i++) {
+            action[i] = outputs[i] > 0;
+        }
+        return action;
+    }*/
+
+    public boolean[] getAction(Environment observation) {
+        byte[][] scene = observation.getLevelSceneObservation(); //1
+        byte[][] enemies = observation.getEnemiesObservation(); //0
+        double[] inputs = new double[]{probe(-1, -1, scene), probe(0, -1, scene), probe(1, -1, scene),
+                                probe(-1, 0, scene), probe(0, 0, scene), probe(1, 0, scene),
+                                probe(-1, 1, scene), probe(0, 1, scene), probe(1, 1, scene),
+                                probe(-1, -1, enemies), probe(0, -1, enemies), probe(1, -1, enemies),
+                                probe(-1, 0, enemies), probe(0, 0, enemies), probe(1, 0, enemies),
+                                probe(-1, 1, enemies), probe(0, 1, enemies), probe(1, 1, enemies),
+                                observation.isMarioOnGround() ? 1 : 0, observation.mayMarioJump() ? 1 : 0,
                                 1};
         double[] outputs = mlp.propagate (inputs);
         boolean[] action = new boolean[numberOfOutputs];
@@ -58,6 +84,10 @@ public class  SimpleMLPAgent implements Agent, Evolvable {
 
     public AGENT_TYPE getType() {
         return AGENT_TYPE.AI;
+    }
+
+    public MLP getMLP(){
+        return mlp;
     }
 
     public String getName() {
@@ -73,4 +103,10 @@ public class  SimpleMLPAgent implements Agent, Evolvable {
         int realY = y + 11;
         return (scene[realX][realY] != 0) ? 1 : 0;
     }
+
+    public String toString(){
+        
+        return name + " " + getType().toString();
+    }
+
 }

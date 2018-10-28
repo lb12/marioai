@@ -2,15 +2,18 @@ package ch.idsia.ai;
 
 import java.util.Random;
 
+import ch.idsia.ai.agents.ai.SimpleMLPAgent;
+
 /**
  * Created by IntelliJ IDEA.
  * User: julian
  * Date: Apr 28, 2009
  * Time: 2:15:10 PM
  */
+
 public class MLP implements FA<double[], double[]>, Evolvable {
 
-        private double[][] firstConnectionLayer;
+    private double[][] firstConnectionLayer;
     private double[][] secondConnectionLayer;
     private double[] hiddenNeurons;
     private double[] outputs;
@@ -89,6 +92,46 @@ public class MLP implements FA<double[], double[]>, Evolvable {
             mutate(anArray);
         }
     }
+    
+    @Override
+    public MLP crossover(SimpleMLPAgent parent2){
+        double[][] firstConnectionLayer = new double[inputs.length][hiddenNeurons.length];
+        double[][] secondConnectionLayer = new double[hiddenNeurons.length][outputs.length];
+
+        int firstIndex = new Random().nextInt(firstConnectionLayer.length);
+        int secondIndex = new Random().nextInt(secondConnectionLayer.length);
+        
+        firstConnectionLayer = fillLayer0(firstConnectionLayer, this.firstConnectionLayer, firstIndex);
+        firstConnectionLayer = fillLayer1(firstConnectionLayer, this.firstConnectionLayer, parent2.getMLP().getFirstConnectionLayer(), (firstIndex + 1), inputs.length);
+
+        secondConnectionLayer = fillLayer0(secondConnectionLayer, this.secondConnectionLayer, secondIndex);
+        secondConnectionLayer = fillLayer1(secondConnectionLayer, this.secondConnectionLayer, parent2.getMLP().getSecondConnectionLayer(), (secondIndex + 1), hiddenNeurons.length);
+
+        MLP son = new MLP(firstConnectionLayer, secondConnectionLayer, hiddenNeurons.length, outputs.length);     
+
+        return son;
+    }
+
+    public double[][] fillLayer0(double[][] layerFilling, double[][] auxLayer,  int max){
+        for(int i = 0; i <= max; i++){
+            for(int j = 0; j < auxLayer[i].length; j++){
+                layerFilling[i][j] = auxLayer[i][j];
+            }
+        }
+
+        return layerFilling;
+    }
+
+    public double[][] fillLayer1(double[][] layerFilling, double[][] parent1Layer,double[][] parent2Layer, int min0, int max0){
+        for(int i = min0; i < max0; i++){
+            for(int j = 0; j < parent2Layer[i].length; j++){
+                layerFilling[i][j] = 0.5f * (parent1Layer[i][j] + parent2Layer[i][j]); //zi = alpha * xi + (1-alpha) * yi  -- Usually, alpha = 0.5f -- zi = 0.5*xi+0.5*yi = 0.5(xi+yi)
+            }
+        }
+
+        return layerFilling;
+    }
+
 
     public void psoRecombine(MLP last, MLP pBest, MLP gBest) {
         // Those numbers are supposed to be constants. Ask Maurice Clerc.
@@ -382,6 +425,14 @@ public class MLP implements FA<double[], double[]>, Evolvable {
 
     public void setArray(double[] array) {
         setWeightsArray(array);
+    }
+
+    public double[][] getFirstConnectionLayer(){
+        return firstConnectionLayer;
+    }
+
+    public double[][] getSecondConnectionLayer(){
+        return secondConnectionLayer;
     }
 
 }
